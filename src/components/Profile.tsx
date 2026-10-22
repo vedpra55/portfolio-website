@@ -126,7 +126,7 @@ export function Meta() {
       <button onClick={toggleTheme} className="transition-colors hover:text-ink">
         <Roll>{theme === 'dark' ? 'Dark' : 'Light'}</Roll>
       </button>
-      <button onClick={openMenu} className="transition-colors hover:text-ink">
+      <button onClick={openMenu} className="transition-colors hover:text-ink [@media(hover:none)]:hidden">
         {isMac ? '⌘K' : 'Ctrl K'}
       </button>
     </div>
