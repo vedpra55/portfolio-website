@@ -33,9 +33,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // New page starts at the top; going back to the list restores where you were.
   useEffect(() => {
-    if (project) window.scrollTo({ top: 0 })
     document.title = project ? `${project.name} · ${profile.name}` : `${profile.name} · ${profile.role}`
   }, [project])
 

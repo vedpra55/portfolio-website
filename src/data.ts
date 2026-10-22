@@ -6,8 +6,7 @@ export const profile = {
   first: 'Ved',
   role: 'Product engineer',
   bio: 'I research the real problem, design the fix, and build it end to end. Frontend is where I’m happiest.',
-  // TODO: replace with your real address.
-  email: 'hello@example.com',
+  email: 'vedna400@gmail.com',
   photo: '/img/ved.jpg',
   timeZone: 'Asia/Kolkata',
   place: 'India',

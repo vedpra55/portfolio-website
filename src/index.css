@@ -77,6 +77,31 @@ body {
   }
 }
 
+/* Page transitions (see navigate in lib.tsx). The page crossfades quickly;
+   the named thumbnail morphs on a slower, settling curve. */
+::view-transition-old(root) {
+  animation-duration: 0.12s;
+}
+
+::view-transition-new(root) {
+  animation-duration: 0.24s;
+}
+
+::view-transition-group(.thumb) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(.thumb),
+::view-transition-new(.thumb) {
+  height: 100%;
+  object-fit: cover;
+}
+
+::view-transition-old(.thumb) {
+  animation-duration: 0.2s;
+}
+
 @keyframes bar {
   0%, 100% { transform: scaleY(0.25); }
   50% { transform: scaleY(1); }

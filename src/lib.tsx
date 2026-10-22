@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import type { Project } from './data'
+import { flushSync } from 'react-dom'
+import { projects, type Project } from './data'
 
 type Theme = 'light' | 'dark'
 
@@ -67,19 +68,47 @@ export const ease = [0.22, 1, 0.36, 1] as const
 export const spring = { type: 'spring', stiffness: 380, damping: 32 } as const
 
 // Minimal history router: /, /info, /work/<id>.
+// Page changes run inside a View Transition so the clicked thumbnail can morph
+// between the list and the project page; the browser snapshots both states, so
+// scrolling to the new position can't throw the animation off.
 const listeners = new Set<() => void>()
-window.addEventListener('popstate', () => listeners.forEach((l) => l()))
+const known = new RegExp(`^/(info|work/(${projects.map((p) => p.id).join('|')}))?$`)
+const scrollPos = new Map<string, number>()
+let current = location.pathname
+
+if (!known.test(current)) {
+  history.replaceState(null, '', '/')
+  current = '/'
+}
+history.scrollRestoration = 'manual'
+
+function commit(update: () => void) {
+  scrollPos.set(current, window.scrollY)
+  const run = () => {
+    flushSync(() => {
+      update()
+      current = known.test(location.pathname) ? location.pathname : '/'
+      listeners.forEach((l) => l())
+    })
+    // Project pages open at the top; the list and Info come back to where you left them.
+    window.scrollTo(0, current.startsWith('/work/') ? 0 : (scrollPos.get(current) ?? 0))
+  }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (!document.startViewTransition || reduce) run()
+  else document.startViewTransition(run)
+}
+
+window.addEventListener('popstate', () => commit(() => {}))
 
 export function navigate(path: string) {
   if (path === location.pathname) return
-  history.pushState(null, '', path)
-  listeners.forEach((l) => l())
+  commit(() => history.pushState(null, '', path))
 }
 
 export function usePath() {
-  const [path, setPath] = useState(location.pathname)
+  const [path, setPath] = useState(current)
   useEffect(() => {
-    const l = () => setPath(location.pathname)
+    const l = () => setPath(current)
     listeners.add(l)
     return () => {
       listeners.delete(l)

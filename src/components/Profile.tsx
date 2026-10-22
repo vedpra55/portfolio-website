@@ -24,61 +24,94 @@ export function Roll({ children, className = '' }: { children: string; className
   )
 }
 
+// Left pane settles in line by line on first load.
+const settle = {
+  hidden: { opacity: 0, y: 6 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
+}
+
 export function Profile() {
+  const [hover, setHover] = useState(false)
+  const { time, awake } = timeIn(useNow(30_000), profile.timeZone)
+
   return (
-    <div className="flex flex-col gap-10">
+    <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.06 }} className="flex flex-col gap-10">
       <div>
-        <Avatar />
-        <h1 className="mt-5 font-medium">{profile.name}</h1>
-        <p className="text-muted">{profile.role}</p>
-        <p className="mt-4 max-w-[34ch] leading-relaxed">{profile.bio}</p>
-        <p className="mt-4 flex items-center gap-2 text-muted">
+        <motion.div variants={settle}>
+          <Avatar hover={hover} setHover={setHover} />
+        </motion.div>
+        <motion.h1 variants={settle} className="mt-5 font-medium">
+          {profile.name}
+        </motion.h1>
+        <motion.p variants={settle} className="text-muted">
+          <Roll>{hover ? `${time} in ${profile.place} · probably ${awake ? 'awake' : 'asleep'}` : profile.role}</Roll>
+        </motion.p>
+        <motion.p variants={settle} className="mt-4 max-w-[34ch] leading-relaxed">
+          {profile.bio}
+        </motion.p>
+        <motion.p variants={settle} className="mt-4 flex items-center gap-2 text-muted">
           <span className="relative flex size-1.5">
             <span className="absolute inset-0 rounded-full bg-live [animation:ping-soft_2.4s_ease-out_infinite]" />
             <span className="relative size-1.5 rounded-full bg-live" />
           </span>
           Available for new work
-        </p>
+        </motion.p>
       </div>
-      <Contact />
-    </div>
+      <motion.div variants={settle}>
+        <Contact />
+      </motion.div>
+    </motion.div>
   )
 }
 
-function Avatar() {
-  const { time, awake } = timeIn(useNow(30_000), profile.timeZone)
-  const [peek, setPeek] = useState(false)
+/**
+ * On load a thin green ring draws once around the photo (matching "Available"),
+ * then lets go. Hovering draws it again while the role line shows local time.
+ */
+function Avatar({ hover, setHover }: { hover: boolean; setHover: (h: boolean) => void }) {
+  const [intro, setIntro] = useState(true)
+  useEffect(() => {
+    const id = setTimeout(() => setIntro(false), 1500)
+    return () => clearTimeout(id)
+  }, [])
+  const on = hover || intro
+
   return (
-    <div className="relative z-20 size-14">
-      <motion.button
-        onHoverStart={() => setPeek(true)}
-        onHoverEnd={() => setPeek(false)}
-        onTap={() => setPeek((p) => !p)}
-        animate={
-          peek
-            ? { width: 148, height: 148, borderRadius: 20, boxShadow: '0 0 0 1px var(--line), 0 24px 48px -16px rgb(0 0 0 / 0.35)' }
-            : { width: 56, height: 56, borderRadius: 28, boxShadow: '0 0 0 1px var(--line), 0 0 0 0 rgb(0 0 0 / 0)' }
-        }
+    <button
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      onClick={() => setHover(!hover)}
+      onBlur={() => setHover(false)}
+      aria-label={`Photo of ${profile.name}. Shows my local time.`}
+      className="relative block size-14"
+    >
+      <motion.img
+        src={profile.photo}
+        alt=""
+        draggable={false}
+        animate={{ scale: hover ? 0.9 : 1 }}
         transition={spring}
-        className="absolute top-0 left-0 overflow-hidden bg-sunken"
-        aria-label={`Photo of ${profile.name}`}
-      >
-        <img src={profile.photo} alt="" className="size-full object-cover object-[50%_28%]" draggable={false} />
-        <AnimatePresence>
-          {peek && (
-            <motion.span
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0, transition: { delay: 0.12 } }}
-              exit={{ opacity: 0, transition: { duration: 0.1 } }}
-              className="absolute inset-x-1.5 bottom-1.5 rounded-lg bg-black/45 px-2 py-1 text-left text-[11px] leading-tight text-white backdrop-blur-md"
-            >
-              {time} in {profile.place}
-              <span className="block opacity-70">{awake ? 'Probably at the desk' : 'Probably asleep'}</span>
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.button>
-    </div>
+        className="size-full rounded-full object-cover object-[50%_28%] shadow-[0_0_0_1px_var(--line)]"
+      />
+      <svg viewBox="0 0 64 64" className="pointer-events-none absolute -inset-1 size-[calc(100%+8px)] -rotate-90" aria-hidden>
+        <motion.circle
+          cx="32"
+          cy="32"
+          r="30.5"
+          fill="none"
+          stroke="var(--live)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={on ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
+          transition={
+            on
+              ? { pathLength: { duration: 0.9, ease, delay: intro ? 0.35 : 0 }, opacity: { duration: 0.15, delay: intro ? 0.35 : 0 } }
+              : { opacity: { duration: 0.35 }, pathLength: { duration: 0, delay: 0.35 } }
+          }
+        />
+      </svg>
+    </button>
   )
 }
 

@@ -49,10 +49,8 @@ export function ProjectPage({ project: p }: { project: Project }) {
       </nav>
 
       <header className="pt-10">
-        <motion.h1 layoutId={`title-${p.id}`} className="text-[22px] font-medium tracking-[-0.01em]">
-          {p.name}
-        </motion.h1>
-        <Reveal>
+        <Reveal delay={0.08}>
+          <h1 className="text-[22px] font-medium tracking-[-0.01em]">{p.name}</h1>
           <p className="mt-1 text-[18px] text-muted">{p.tagline}</p>
         </Reveal>
       </header>
@@ -61,7 +59,7 @@ export function ProjectPage({ project: p }: { project: Project }) {
         <Hero id={p.id} />
       </div>
 
-      <Reveal>
+      <Reveal delay={0.2}>
         <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
           <Meta label="Role">{p.role}</Meta>
           <Meta label="Year">{p.year}</Meta>
@@ -167,6 +165,9 @@ export function ProjectPage({ project: p }: { project: Project }) {
         href={`/work/${next.id}`}
         onClick={(e) => {
           e.preventDefault()
+          // Name this thumbnail only now, so it (and nothing else) morphs into the next page's header.
+          const thumb = e.currentTarget.querySelector<HTMLElement>('[data-thumb]')
+          if (thumb) thumb.style.viewTransitionName = `thumb-${next.id}`
           openProject(next.id)
         }}
         className="group mt-16 flex items-center justify-between gap-5 border-t border-line pt-6"
@@ -177,7 +178,9 @@ export function ProjectPage({ project: p }: { project: Project }) {
           <span className="inline-block text-muted transition-transform group-hover:translate-x-1">→</span>
           <span className="mt-0.5 block text-muted">{next.tagline}</span>
         </span>
-        <Thumb id={next.id} width={112} active={false} />
+        <div data-thumb className="w-28 shrink-0 overflow-hidden rounded-[10px]">
+          <Thumb id={next.id} active={false} />
+        </div>
       </a>
     </article>
   )
@@ -188,7 +191,7 @@ function Hero({ id }: { id: Project['id'] }) {
   const inView = useInView(ref)
   return (
     <div ref={ref}>
-      <Thumb id={id} active={inView} />
+      <Thumb id={id} name={`thumb-${id}`} active={inView} />
     </div>
   )
 }
@@ -213,13 +216,13 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function Reveal({ children }: { children: ReactNode }) {
+function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.5, ease }}
+      transition={{ duration: 0.5, ease, delay }}
     >
       {children}
     </motion.div>

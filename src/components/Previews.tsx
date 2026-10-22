@@ -17,17 +17,17 @@ export function Preview({ id, active }: { id: Project['id']; active: boolean }) 
   const Scene = { anyash: Anyash, have: Have, easily: Easily, learn: Learn }[id]
   return (
     <div className={`relative size-full overflow-hidden ${sceneBg[id]}`}>
-      <Scene active={active} />
+      {/* Remount on play/rest so a scene jumps straight to its start or finished frame instead of rewinding. */}
+      <Scene key={String(active)} active={active} />
     </div>
   )
 }
 
-/** Advances 0..n-1 while active, replaying from 0 each time. At rest it shows `rest` (the finished frame). */
+/** Advances 0..n-1 while active. At rest it shows `rest` (the finished frame). */
 function useTick(active: boolean, n: number, ms: number, rest = n - 1) {
   const [t, setT] = useState(0)
   useEffect(() => {
     if (!active) return
-    setT(0)
     const id = setInterval(() => setT((v) => (v + 1) % n), ms)
     return () => clearInterval(id)
   }, [active, n, ms])
@@ -232,7 +232,6 @@ function Learn({ active }: { active: boolean }) {
   const [tick, setN] = useState(0)
   useEffect(() => {
     if (!active) return
-    setN(0)
     const id = setInterval(() => setN((v) => (v >= hint.length + 30 ? 0 : v + 1)), 38)
     return () => clearInterval(id)
   }, [active])
