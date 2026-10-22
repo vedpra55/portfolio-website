@@ -65,3 +65,25 @@ export async function copyText(text: string) {
 
 export const ease = [0.22, 1, 0.36, 1] as const
 export const spring = { type: 'spring', stiffness: 380, damping: 32 } as const
+
+// Minimal history router: /, /info, /work/<id>.
+const listeners = new Set<() => void>()
+window.addEventListener('popstate', () => listeners.forEach((l) => l()))
+
+export function navigate(path: string) {
+  if (path === location.pathname) return
+  history.pushState(null, '', path)
+  listeners.forEach((l) => l())
+}
+
+export function usePath() {
+  const [path, setPath] = useState(location.pathname)
+  useEffect(() => {
+    const l = () => setPath(location.pathname)
+    listeners.add(l)
+    return () => {
+      listeners.delete(l)
+    }
+  }, [])
+  return path
+}

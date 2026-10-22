@@ -11,9 +11,10 @@ const paths: Record<Exclude<LinkId, 'email' | 'fiverr'>, string> = {
 export function BrandIcon({ id, className = 'size-5' }: { id: LinkId; className?: string }) {
   if (id === 'fiverr')
     return (
-      <span className={`${className} grid place-items-center font-bold leading-none tracking-tight`} style={{ fontSize: '1.05em' }}>
-        fi
-      </span>
+      <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+        <rect x="2.75" y="2.75" width="18.5" height="18.5" rx="5" stroke="currentColor" strokeWidth="1.6" />
+        <text x="12" y="16.4" textAnchor="middle" fontSize="11" fontWeight="700" fill="currentColor" fontFamily="inherit">fi</text>
+      </svg>
     )
   if (id === 'email')
     return (

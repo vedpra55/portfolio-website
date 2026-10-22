@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { links, profile } from '../data'
 import { copyText, ease, spring, timeIn, useApp, useNow } from '../lib'
+import { BrandIcon } from './BrandIcon'
 
 /** Swaps text by rolling the old value up and the new one in from below. */
 export function Roll({ children, className = '' }: { children: string; className?: string }) {
@@ -83,29 +84,44 @@ function Avatar() {
 
 function Contact() {
   const [copied, setCopied] = useState(false)
+  const [tip, setTip] = useState<string | null>(null)
   useEffect(() => {
     if (!copied) return
     const id = setTimeout(() => setCopied(false), 1600)
     return () => clearTimeout(id)
   }, [copied])
 
-  const row = 'group grid grid-cols-[76px_1fr_auto] items-baseline py-[3px]'
+  const items = [
+    { id: 'email' as const, label: copied ? 'Copied' : profile.email, href: undefined },
+    ...links.map((l) => ({ id: l.id, label: `${l.label} · ${l.handle}`, href: l.href })),
+  ]
+  const shown = tip === 'email' ? items[0].label : items.find((i) => i.id === tip)?.label
+
   return (
-    <div>
-      <button onClick={() => copyText(profile.email).then(() => setCopied(true))} className={`${row} w-full text-left`}>
-        <span className="text-muted">Email</span>
-        <span>
-          <Roll>{copied ? 'Copied to clipboard' : profile.email}</Roll>
-        </span>
-        <span className="text-faint opacity-0 transition-opacity group-hover:opacity-100">{copied ? '' : 'Copy'}</span>
-      </button>
-      {links.map((l) => (
-        <a key={l.id} href={l.href} target="_blank" rel="noreferrer" className={row}>
-          <span className="text-muted">{l.label}</span>
-          <span className="truncate transition-transform duration-300 group-hover:translate-x-0.5">{l.handle}</span>
-          <span className="text-faint opacity-0 transition-all duration-300 group-hover:-translate-y-px group-hover:opacity-100">↗</span>
-        </a>
-      ))}
+    <div onPointerLeave={() => setTip(null)}>
+      <div className="-ml-2 flex">
+        {items.map((it) => {
+          const Tag = it.href ? 'a' : 'button'
+          return (
+            <Tag
+              key={it.id}
+              {...(it.href
+                ? { href: it.href, target: '_blank', rel: 'noreferrer' }
+                : { onClick: () => copyText(profile.email).then(() => setCopied(true)) })}
+              onPointerEnter={() => setTip(it.id)}
+              onFocus={() => setTip(it.id)}
+              onBlur={() => setTip(null)}
+              aria-label={it.id === 'email' ? `Copy email ${profile.email}` : it.label}
+              className={`grid size-9 place-items-center rounded-lg transition-colors hover:bg-sunken hover:text-ink ${tip === it.id ? 'text-ink' : 'text-muted'}`}
+            >
+              <BrandIcon id={it.id} className="size-[18px]" />
+            </Tag>
+          )
+        })}
+      </div>
+      <div className="mt-1 h-5 text-sm text-muted">
+        {shown ? <Roll>{shown}</Roll> : <span className="text-faint">The envelope copies my email</span>}
+      </div>
     </div>
   )
 }

@@ -20,17 +20,20 @@ Everything lives in `src/data.ts`: profile, links, projects, proof, how-I-work s
 ## Design
 
 Quiet, app-like, two panes: profile fixed on the left, Work / Info tabs on the right.
+Each project has its own page at `/work/<id>` (Overview, Problem, What I found, How it works, Decisions, Outcome, Stack, Screens).
+Sections with no data (metrics, screenshots) hide themselves. Put screenshots in `public/work/<id>/`.
 One typeface (Host Grotesk, self-hosted), one size, hierarchy through ink vs. grey. No accent colour.
 
 ## Small gestures
 
 - Hover (or tap) the avatar: it opens into a larger photo showing my local time and whether I'm likely awake
-- Email row copies on click; the address rolls over to "Copied to clipboard"
-- Link rows nudge and show ↗ on hover, all on one aligned grid
-- Tabs: sliding underline, directional transition, ← / → keys, state kept in the URL (`#info`, `#work/anyash`)
+- Icon row for links; hovering names each one underneath, the envelope copies the email
+- Tabs: sliding underline, directional transition, ← / → keys, real URLs (`/`, `/info`, `/work/anyash`)
 - Project scenes rest on their finished frame and replay from the start on hover (they play on scroll on touch screens)
-- The thumbnail grows into the case-study sheet; Esc, backdrop, or drag the handle down to close
+- The list thumbnail (a true miniature of the scene) grows into the project page header; Esc goes back, [ and ] flip projects
 - Blinking clock colon, Light/Dark toggle whose label rolls, `⌘K` / `Ctrl K` command menu
 - Respects reduced motion
 
 Deploy: any static host (Vercel, Netlify, Cloudflare Pages). Build command `npm run build`, output `dist`.
+
+SPA fallback is configured for Vercel (`vercel.json`) and Netlify (`public/_redirects`).
