@@ -4,12 +4,12 @@ export const profile = {
   name: 'Ved Pratap Singh',
   first: 'Ved',
   role: 'Product engineer',
+  bio: 'I research the real problem, design the fix, and build it end to end. Frontend is where I’m happiest.',
   // TODO: replace with your real address.
   email: 'hello@example.com',
   photo: '/img/ved.jpg',
   timeZone: 'Asia/Kolkata',
   place: 'India',
-  now: 'Building Anyash, a voice-first health companion.',
 }
 
 export type LinkId = 'github' | 'linkedin' | 'x' | 'fiverr' | 'email'
@@ -106,24 +106,6 @@ export const projects: Project[] = [
   },
 ]
 
-export const proof = {
-  fiverr: { rating: 5.0, reviews: 32 },
-  award: {
-    place: '2nd',
-    prize: 20,
-    program: 'Google startup program',
-    note: 'Core builder on the team',
-  },
-}
+export const fiverr = { rating: '5.0', reviews: 32 }
 
-export const steps = [
-  { title: 'Research', text: 'Talk to people. Find what’s actually broken.' },
-  { title: 'Design', text: 'Sketch the smallest thing that fixes it.' },
-  { title: 'Build', text: 'Frontend to backend, end to end.' },
-  { title: 'Ship', text: 'Put it in hands. Listen. Repeat.' },
-]
-
-export const stack = [
-  'React', 'TypeScript', 'Next.js', 'Vite', 'Tailwind', 'Motion', 'SwiftUI',
-  'Node.js', 'Python', 'Postgres', 'LLMs', 'Voice AI', 'Figma',
-]
+export const tools = ['React', 'TypeScript', 'Next.js', 'SwiftUI', 'Node.js', 'Postgres', 'LLMs', 'Figma']

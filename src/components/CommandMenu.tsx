@@ -87,7 +87,7 @@ function Menu({ onClose }: { onClose: () => void }) {
       transition={spring}
       role="dialog"
       aria-label="Command menu"
-      className="card pointer-events-auto w-full max-w-[520px] overflow-hidden"
+      className="pointer-events-auto w-full max-w-[480px] overflow-hidden rounded-2xl bg-surface shadow-[0_0_0_1px_var(--line),0_30px_80px_-30px_rgb(0_0_0/0.35)]"
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') { e.preventDefault(); setSel((current + 1) % items.length) }
         if (e.key === 'ArrowUp') { e.preventDefault(); setSel((current - 1 + items.length) % items.length) }
@@ -102,9 +102,9 @@ function Menu({ onClose }: { onClose: () => void }) {
           value={q}
           onChange={(e) => { setQ(e.target.value); setSel(0) }}
           placeholder="Jump to a project, copy email…"
-          className="h-14 flex-1 bg-transparent text-[15px] outline-none placeholder:text-faint"
+          className="h-12 flex-1 bg-transparent outline-none placeholder:text-faint"
         />
-        <kbd className="rounded-md border border-line px-1.5 font-mono text-[10px] text-muted">esc</kbd>
+        <kbd className="text-sm text-faint">esc</kbd>
       </div>
       <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
         {items.length === 0 && <p className="px-3 py-8 text-center text-sm text-muted">Nothing here. Try “email”.</p>}
@@ -112,14 +112,14 @@ function Menu({ onClose }: { onClose: () => void }) {
           const header = item.group !== lastGroup ? (lastGroup = item.group) : null
           return (
             <div key={item.id}>
-              {header && <div className="px-3 pt-3 pb-1.5 font-mono text-[10px] tracking-wider text-faint uppercase">{header}</div>}
+              {header && <div className="px-3 pt-3 pb-1 text-sm text-faint">{header}</div>}
               <button
                 data-index={i}
                 onPointerMove={() => setSel(i)}
                 onClick={() => run(item)}
-                className="relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm"
+                className="relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left"
               >
-                {i === current && <motion.span layoutId="cmd-sel" transition={spring} className="absolute inset-0 rounded-xl bg-sunken" />}
+                {i === current && <motion.span layoutId="cmd-sel" transition={spring} className="absolute inset-0 rounded-lg bg-sunken" />}
                 <span className="relative grid size-5 place-items-center text-muted">{item.icon}</span>
                 <span className="relative">{item.label}</span>
                 {item.hint && <span className="relative truncate text-muted">{item.hint}</span>}

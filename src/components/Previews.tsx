@@ -7,10 +7,10 @@ import type { Project } from '../data'
 import { ease, spring } from '../lib'
 
 export const sceneBg: Record<Project['id'], string> = {
-  anyash: 'bg-[#FBE3D6] dark:bg-[#2B1A11]',
-  have: 'bg-[#E5EBDD] dark:bg-[#18201A]',
-  easily: 'bg-[#E6E2F5] dark:bg-[#1B1826]',
-  learn: 'bg-[#DCE8F2] dark:bg-[#121D26]',
+  anyash: 'bg-[#F3ECE6] dark:bg-[#211c19]',
+  have: 'bg-[#EBEDE6] dark:bg-[#1b1e1a]',
+  easily: 'bg-[#ECEAF1] dark:bg-[#1c1b21]',
+  learn: 'bg-[#E7ECF0] dark:bg-[#191d20]',
 }
 
 export function Preview({ id, active }: { id: Project['id']; active: boolean }) {
@@ -22,15 +22,16 @@ export function Preview({ id, active }: { id: Project['id']; active: boolean }) 
   )
 }
 
-/** Advances 0..n-1 on an interval while active. */
-function useTick(active: boolean, n: number, ms: number) {
+/** Advances 0..n-1 while active, replaying from 0 each time. At rest it shows `rest` (the finished frame). */
+function useTick(active: boolean, n: number, ms: number, rest = n - 1) {
   const [t, setT] = useState(0)
   useEffect(() => {
     if (!active) return
+    setT(0)
     const id = setInterval(() => setT((v) => (v + 1) % n), ms)
     return () => clearInterval(id)
   }, [active, n, ms])
-  return t
+  return active ? t : rest
 }
 
 const glass = 'bg-white/80 shadow-[0_10px_30px_-12px_rgb(0_0_0/0.25)] backdrop-blur dark:bg-white/[0.07] dark:shadow-none ring-1 ring-black/5 dark:ring-white/10'
@@ -52,7 +53,7 @@ function Chip({ children, show, delay = 0 }: { children: ReactNode; show: boolea
 
 function Anyash({ active }: { active: boolean }) {
   const t = useTick(active, 5, 1400)
-  const seconds = useTick(active, 60, 1000)
+  const seconds = useTick(active, 60, 1000, 42)
   return (
     <div className="absolute inset-0 grid place-items-center p-6">
       <div className="flex w-full max-w-[250px] flex-col items-center gap-3">
@@ -63,7 +64,7 @@ function Anyash({ active }: { active: boolean }) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-semibold text-ink">Anyash</div>
-            <div className="font-mono text-[10px] text-muted">on call · 0:{String(seconds).padStart(2, '0')}</div>
+            <div className="text-[10px] text-muted tabular-nums">on call · 0:{String(seconds).padStart(2, '0')}</div>
           </div>
           <div className="flex h-6 items-center gap-[3px]">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -98,8 +99,8 @@ function Have({ active }: { active: boolean }) {
     <div className="absolute inset-x-0 top-7 bottom-0 flex justify-center">
       <div className="relative h-[115%] w-[200px] rounded-t-[34px] border-[6px] border-b-0 border-[#1b1b1a] bg-[#FBFAF6] p-4 pt-7 shadow-[0_30px_60px_-20px_rgb(0_0_0/0.4)] dark:border-[#2a2a28] dark:bg-[#121211]">
         <div className="absolute top-2 left-1/2 h-[14px] w-[60px] -translate-x-1/2 rounded-full bg-[#1b1b1a] dark:bg-[#2a2a28]" />
-        <div className="font-mono text-[9px] tracking-wider text-muted uppercase">Today</div>
-        <div className="mt-0.5 font-serif text-[22px] leading-tight text-ink italic">I’m grateful for</div>
+        <div className="text-[10px] text-muted">Today</div>
+        <div className="mt-0.5 text-[17px] leading-tight font-medium text-ink">I’m grateful for</div>
         <div className="mt-3 flex flex-col gap-1.5">
           {gratitude.map((g, i) => {
             const on = t > i
@@ -131,7 +132,7 @@ function Have({ active }: { active: boolean }) {
               exit={{ opacity: 0 }}
               className="mt-3 text-center text-[10px] text-muted"
             >
-              Done in 9 seconds ✦
+              Done in 9 seconds
             </motion.div>
           )}
         </AnimatePresence>
@@ -154,7 +155,7 @@ const people = [
 ]
 
 function Easily({ active }: { active: boolean }) {
-  const i = useTick(active, asks.length, 3200)
+  const i = useTick(active, asks.length, 3200, 0)
   const a = asks[i]
   return (
     <div className="absolute inset-0 flex items-center justify-center gap-5 p-6">
@@ -228,12 +229,14 @@ function Easily({ active }: { active: boolean }) {
 const hint = 'Think of a neuron as a tiny vote: it adds up signals and decides whether to fire.'
 
 function Learn({ active }: { active: boolean }) {
-  const [n, setN] = useState(0)
+  const [tick, setN] = useState(0)
   useEffect(() => {
     if (!active) return
+    setN(0)
     const id = setInterval(() => setN((v) => (v >= hint.length + 30 ? 0 : v + 1)), 38)
     return () => clearInterval(id)
   }, [active])
+  const n = active ? tick : hint.length
   const typed = hint.slice(0, n)
   const done = n >= hint.length
 
@@ -241,8 +244,8 @@ function Learn({ active }: { active: boolean }) {
     <div className="absolute inset-0 grid place-items-center p-6">
       <div className={`w-full max-w-[260px] rounded-[22px] p-4 ${glass}`}>
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[9px] tracking-wider text-muted uppercase">Lesson 3 · Neural nets</span>
-          <span className="font-mono text-[9px] text-muted">{Math.min(100, Math.round((n / hint.length) * 100))}%</span>
+          <span className="text-[10px] text-muted">Lesson 3 · Neural nets</span>
+          <span className="text-[10px] text-muted tabular-nums">{Math.min(100, Math.round((n / hint.length) * 100))}%</span>
         </div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
           <motion.div className="h-full rounded-full bg-[#2F7DD1]" animate={{ width: `${Math.min(100, (n / hint.length) * 100)}%` }} transition={{ duration: 0.1 }} />

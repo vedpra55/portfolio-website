@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type PointerEvent } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { Project } from './data'
 
 type Theme = 'light' | 'dark'
@@ -61,13 +61,6 @@ export async function copyText(text: string) {
     document.execCommand('copy')
     el.remove()
   }
-}
-
-/** Feeds pointer position into --x / --y for the `spotlight` utility. */
-export function trackPointer(e: PointerEvent<HTMLElement>) {
-  const r = e.currentTarget.getBoundingClientRect()
-  e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`)
-  e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`)
 }
 
 export const ease = [0.22, 1, 0.36, 1] as const
