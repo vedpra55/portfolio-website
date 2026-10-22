@@ -102,7 +102,7 @@ The goal is that it *feels* like a well-designed product, because frontend and d
 
 ---
 
-## 5. Tech stack
+## 5. Tech stack (superseded: we went with Vite + React + Tailwind v4 + Motion, see README)
 
 - **Next.js (App Router) + TypeScript**, which shows the frontend skills you're selling
 - **Tailwind CSS** for tokens and fast iteration
